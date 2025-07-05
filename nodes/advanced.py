@@ -33,7 +33,7 @@ class RemoteChainStart:
 		return(remote_chain,)
 
 	@classmethod
-	def IS_CHANGED(self, workflow, trigger, batch, seed, prompt):
+	def IS_CHANGED(self, workflow, trigger, batch, seed, prompt=None):
 		uuid = f"W:{workflow},B:{batch},S:{seed}"
 		return uuid if trigger == "on_change" else str(time.time())
 
