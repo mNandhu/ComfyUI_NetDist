@@ -2,6 +2,11 @@ import os
 import json
 import torch
 import requests
+from dotenv import load_dotenv
+load_dotenv()
+
+CERT_PATH = os.getenv("CERT_PATH")
+VERIFY = CERT_PATH if CERT_PATH else True
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
@@ -26,7 +31,7 @@ class LoadImageUrl:
 	TITLE = "Load Image (URL)"
 
 	def load_image_url(self, url):
-		with requests.get(url, stream=True) as r:
+		with requests.get(url, stream=True, verify=VERIFY) as r:
 			r.raise_for_status()
 			i = Image.open(r.raw)
 		image = i.convert("RGB")
@@ -85,7 +90,7 @@ class SaveImageUrl:
 			data[file] = f"data:image/png;base64,{encoded}" if data_format == "HTML_image" else encoded
 			counter += 1
 
-		with requests.post(url, json=data) as r:
+		with requests.post(url, json=data, verify=VERIFY) as r:
 			r.raise_for_status()
 		return ()
 

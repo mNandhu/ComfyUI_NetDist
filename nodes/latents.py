@@ -1,9 +1,13 @@
 import os
 import torch
 import requests
+from dotenv import load_dotenv
 import safetensors.torch
 import numpy as np
 from io import BytesIO
+load_dotenv()
+CERT_PATH = os.getenv("CERT_PATH")
+VERIFY = CERT_PATH if CERT_PATH else True
 
 import folder_paths
 
@@ -105,7 +109,7 @@ class LoadLatentUrl(LoadLatentNumpy):
 
 	def load(self, url):
 		buffer = BytesIO()
-		with requests.get(url, stream=True, timeout=16) as r:
+		with requests.get(url, stream=True, timeout=16, verify=VERIFY) as r:
 			r.raise_for_status()
 			buffer.write(r.content)
 		buffer.seek(0)

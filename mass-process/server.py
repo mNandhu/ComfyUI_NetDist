@@ -12,6 +12,8 @@ from threading import Thread
 from dotenv import load_dotenv
 
 load_dotenv()
+CERT_PATH = os.getenv("CERT_PATH")
+VERIFY = CERT_PATH if CERT_PATH else True
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 REQUEST_HEADERS = {"Authorization": f"Bearer {BEARER_TOKEN}"}
@@ -82,14 +84,14 @@ class Worker:
                 "job_id": self.job.job_id,
             },
         }
-        r = requests.post(url, json=data, headers=REQUEST_HEADERS)
+        r = requests.post(url, json=data, headers=REQUEST_HEADERS, verify=VERIFY)
         r.raise_for_status()
 
     def wait_for_job(self):
         url = self.url + "/history"
         image_data = None
         while not image_data:
-            r = requests.get(url, headers=REQUEST_HEADERS)
+            r = requests.get(url, headers=REQUEST_HEADERS, verify=VERIFY)
             r.raise_for_status()
             data = r.json()
             if not data:
@@ -108,7 +110,7 @@ class Worker:
         images = []
         for i in self.wait_for_job():
             img_url = f"{self.url}/view?filename={i['filename']}&subfolder={i['subfolder']}&type={i['type']}"
-            ir = requests.get(img_url, stream=True, headers=REQUEST_HEADERS)
+            ir = requests.get(img_url, stream=True, headers=REQUEST_HEADERS, verify=VERIFY)
             ir.raise_for_status()
             images.append(Image.open(ir.raw))
 

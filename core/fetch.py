@@ -8,6 +8,8 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+CERT_PATH = os.getenv("CERT_PATH")
+VERIFY = CERT_PATH if CERT_PATH else True
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 HEADERS = {"Authorization": f"Bearer {BEARER_TOKEN}"}
@@ -27,7 +29,7 @@ def get_job_output(inputs, outputs):
 def wait_for_job(remote_url, job_id):
     fail = 0
     while fail <= 3:
-        r = requests.get(f"{remote_url}/history", timeout=4, headers=HEADERS)
+        r = requests.get(f"{remote_url}/history", timeout=4, headers=HEADERS, verify=VERIFY)
         try:
             r.raise_for_status()
         except Exception as e:
@@ -64,7 +66,7 @@ def fetch_from_remote(remote_url, job_id):
     for i in wait_for_job(remote_url, job_id):
         img_url = f"{remote_url}/view?filename={i['filename']}&subfolder={i['subfolder']}&type={i['type']}"
 
-        ir = requests.get(img_url, stream=True, timeout=16, headers=HEADERS)
+        ir = requests.get(img_url, stream=True, timeout=16, headers=HEADERS, verify=VERIFY)
         ir.raise_for_status()
         img = Image.open(ir.raw)
         images.append(img_to_torch(img))

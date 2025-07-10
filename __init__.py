@@ -1,6 +1,10 @@
 # only import if running as a custom node
 try:
-	import comfy.utils
+	import importlib.util
+	spec = importlib.util.find_spec("comfy.utils")
+	if spec is None:
+		raise ImportError
+	importlib.import_module("comfy.utils")
 except ImportError:
 	pass
 else:

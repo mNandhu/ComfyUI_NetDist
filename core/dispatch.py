@@ -10,6 +10,8 @@ from copy import deepcopy
 from dotenv import load_dotenv
 
 load_dotenv()
+CERT_PATH = os.getenv("CERT_PATH")
+VERIFY = CERT_PATH if CERT_PATH else True
 
 BEARER_TOKEN = os.getenv("BEARER_TOKEN")
 HEADERS = {"Authorization": f"Bearer {BEARER_TOKEN}"}
@@ -18,7 +20,7 @@ from .utils import clean_url, get_client_id
 
 
 def clear_remote_queue(remote_url):
-    r = requests.get(f"{remote_url}/queue", timeout=30, headers=HEADERS)
+    r = requests.get(f"{remote_url}/queue", timeout=30, headers=HEADERS, verify=VERIFY)
     r.raise_for_status()
     queue = r.json()
 
@@ -32,6 +34,7 @@ def clear_remote_queue(remote_url):
         json={"delete": to_cancel},
         timeout=30,
         headers=HEADERS,
+        verify=VERIFY,
     )
     r.raise_for_status()
 
@@ -42,6 +45,7 @@ def clear_remote_queue(remote_url):
                 json={},
                 timeout=30,
                 headers=HEADERS,
+                verify=VERIFY,
             )
             r.raise_for_status()
             break
@@ -49,7 +53,7 @@ def clear_remote_queue(remote_url):
 
 def get_remote_os(remote_url):
     url = f"{remote_url}/system_stats"
-    r = requests.get(url, timeout=30, headers=HEADERS)
+    r = requests.get(url, timeout=30, headers=HEADERS, verify=VERIFY)
     r.raise_for_status()
     data = r.json()
     return data["system"]["os"]
@@ -59,7 +63,7 @@ def get_output_nodes(remote_url):
     # I'm 90% sure this could just use the
     # list from the host but better safe than sorry
     url = f"{remote_url}/object_info"
-    r = requests.get(url, timeout=30, headers=HEADERS)
+    r = requests.get(url, timeout=30, headers=HEADERS, verify=VERIFY)
     r.raise_for_status()
     data = r.json()
     out = [k for k, v in data.items() if v.get("output_node")]
@@ -156,6 +160,7 @@ def dispatch_to_remote(
         data=json.dumps(data),
         headers=headers,
         timeout=120,
+        verify=VERIFY,
     )
     ar.raise_for_status()
     return
